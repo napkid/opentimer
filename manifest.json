@@ -1,0 +1,27 @@
+{
+    "name": "OpenTimer",
+    "version": "0.1.0",
+    "manifest_version": 3,
+    "action": {
+      "default_icon": {
+        "32": "/stopwatch.svg"
+      },
+      "default_title": "Opentimer"
+    },    
+    "permissions": [
+      "activeTab",
+      "tabs",
+      "contextMenus",
+      "webNavigation",
+      "scripting",
+      "notifications"
+    ],
+    "host_permissions": [
+      "<all_urls>",
+      "*://*/*"
+    ],
+    "background": {
+      "service_worker": "src/entrypoints/background.ts"
+    }
+  }
+  

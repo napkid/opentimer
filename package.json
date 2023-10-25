@@ -1,0 +1,37 @@
+{
+  "name": "opentimer",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@abraham/reflection": "^0.12.0",
+    "@iconify/json": "^2.2.131",
+    "@svgr/core": "^8.1.0",
+    "@svgr/plugin-jsx": "^8.1.0",
+    "@tanstack/solid-query": "^5.0.5",
+    "@types/debug": "^4.1.10",
+    "@types/webextension-polyfill": "^0.10.5",
+    "autoprefixer": "^10.4.16",
+    "date-fns": "^2.30.0",
+    "debug": "^4.3.4",
+    "dexie": "^3.2.4",
+    "flowbite": "^1.8.1",
+    "inversify": "^6.0.2",
+    "inversify-logger-middleware": "^3.1.0",
+    "postcss": "^8.4.31",
+    "reflect-metadata": "^0.1.13",
+    "solid-js": "^1.7.8",
+    "tailwindcss": "^3.3.3",
+    "typescript": "^5.2.2",
+    "unplugin-icons": "^0.17.1",
+    "vite": "^4.4.5",
+    "vite-plugin-solid": "^2.7.0",
+    "vite-plugin-web-extension": "^3.2.0",
+    "webextension-polyfill": "^0.10.0"
+  }
+}
