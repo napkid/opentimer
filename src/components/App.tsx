@@ -5,14 +5,20 @@ import { QueryClient } from '@tanstack/query-core';
 import { Component } from 'solid-js';
 import { Container } from 'inversify';
 import { ApiProvider } from '../hooks/useApi';
-
+import { Route, Router, Routes, hashIntegration } from '@solidjs/router'
+import SettingsPage from '../pages/SettingsPage';
 
 
 const App: Component<{ api: Container }> = (props) => {
   return <ApiProvider value={props.api}>
-    <Layout>
-      <Home />
-    </Layout>
+    <Router source={hashIntegration()}>
+      <Layout>
+        <Routes>
+          <Route path="/settings/:section?" component={SettingsPage} />
+          <Route path="/" component={Home} />
+        </Routes>
+      </Layout>
+    </Router>
   </ApiProvider>
 }
 
