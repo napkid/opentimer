@@ -9,7 +9,8 @@ const TYPES = {
     ExtRuntime: Symbol.for('ExtRuntime'),
     Notification: Symbol.for('Notification'),
     Timer: Symbol.for('Timer'),
-    Logger: Symbol.for('Logger')
+    Logger: Symbol.for('Logger'),
+    Settings: Symbol.for('Settings')
 }
 
 export default TYPES

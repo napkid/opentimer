@@ -20,3 +20,8 @@ export type State = {
     id: string,
     currentSession?: number
 }
+
+export type Settings = {
+    id: string,
+    sessionDuration: number
+}
