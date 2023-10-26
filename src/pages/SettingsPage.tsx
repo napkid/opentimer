@@ -2,6 +2,8 @@ import { useLocation, useNavigate, useParams } from "@solidjs/router"
 import useSettingsMutation from "../hooks/useSettingsMutation"
 import useSettings from "../hooks/useSettings"
 import { ErrorBoundary, Show } from "solid-js"
+import { Settings } from "../entities"
+import debounce from "../utils/debounce"
 
 
 const SettingsPage = () => {
@@ -23,8 +25,11 @@ const SettingsPage = () => {
         }
     }
 
+    const handleSettingsChange = debounce((settings: Partial<Settings>) => {
+        settingsMutation.mutate(settings)
+    }, 300)
+
     return <div>
-        <ErrorBoundary fallback={<p>Error !</p>}>
 
             <h2 onClick={() => handleClick('general')}>
                 <button type="button" class="flex items-center justify-between w-full p-5 font-medium text-left text-gray-500 border border-b-0 border-gray-200 rounded-t-xl focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800" data-accordion-target="#accordion-collapse-body-1" aria-expanded="true" aria-controls="accordion-collapse-body-1">
@@ -46,10 +51,12 @@ const SettingsPage = () => {
                             <Show when={settingsQuery.data}>
                                 {data => <input
                                     type="number"
+                                    min={1}
+                                    step={1}
                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     value={data().sessionDuration / 60000}
                                     onChange={(e) => {
-                                        settingsMutation.mutate({
+                                        handleSettingsChange({
                                             sessionDuration: parseInt(e.target.value) * 60 * 1000
                                         })
                                     }}
@@ -84,7 +91,6 @@ const SettingsPage = () => {
                     {err().toString()}
                 </pre>}
             </Show>
-        </ErrorBoundary>
     </div >
 
 }

@@ -1,4 +1,4 @@
-import { CreateMutationResult, CreateQueryResult, createMutation, createQuery, useQueryClient } from "@tanstack/solid-query"
+import { CreateMutationResult, CreateQueryResult, QueryCache, createMutation, createQuery, useQueryClient } from "@tanstack/solid-query"
 import { Settings } from "../entities"
 import SettingsService from "../interfaces/SettingsService"
 import TYPES from "../services/types"
@@ -15,10 +15,23 @@ const useSettingsMutation = () => {
         mutationKey: ['updateSettings'],
         mutationFn: (settings: Partial<Settings>) => settingsService
             .setSettings(settings),
-        onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: ['settings']
-            })
+        onMutate: async (settings) => {
+            await queryClient.cancelQueries({ queryKey: ['settings'] })
+            const previousSettings = queryClient.getQueryData(['settings'])
+            queryClient.setQueryData(['settings'], (prev: Settings) => ({
+                ...prev,
+                ...settings
+            }))
+            return {
+                previousSettings
+            }
+        },
+        onSuccess: (settings: Settings) => {
+            queryClient.setQueryData(['settings'], settings)
+        },
+        onError: (err, settings, context) => {
+            queryClient.setQueryData(['settings'], context.previousSettings)
+            console.error(err)
         }
     }))
 
