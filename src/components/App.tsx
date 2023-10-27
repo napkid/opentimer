@@ -1,7 +1,5 @@
 import Layout from './Layout'
-import Home from './Home'
-import { QueryClientProvider } from '@tanstack/solid-query';
-import { QueryClient } from '@tanstack/query-core';
+import Home from '../pages/Home'
 import { Component } from 'solid-js';
 import { Container } from 'inversify';
 import { ApiProvider } from '../hooks/useApi';

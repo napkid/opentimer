@@ -2,7 +2,7 @@ import { createMutation, useQueryClient } from "@tanstack/solid-query"
 import { useApi } from "./useApi"
 import SessionService from "../interfaces/SessionService"
 import TYPES from "../services/types"
-import { Task } from "../entities"
+import { Session, Task } from "../entities"
 
 
 const useStartSessionMutation = () => {
@@ -11,11 +11,11 @@ const useStartSessionMutation = () => {
     return createMutation(() => ({
         mutationKey: ['startSession'],
         mutationFn: async (task: Partial<Task>) => {
-            await api.get<SessionService>(TYPES.Session)
+            return await api.get<SessionService>(TYPES.Session)
             .startSession(task)
-            queryClient.invalidateQueries({
-                queryKey: ['currentSession']
-            })
+        },
+        onSuccess: (session: Session) => {
+            queryClient.setQueryData(['currentSession'], session)
         }
     }))
 }

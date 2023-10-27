@@ -1,24 +1,17 @@
-import { Match, Show, Switch, VoidProps, createEffect, createSignal, onCleanup } from "solid-js";
-import { createMutation, createQuery, useQueryClient } from '@tanstack/solid-query'
+import { Component, Match, Show, Switch, VoidProps, createEffect, createSignal, onCleanup } from "solid-js";
 import Counter from "./Counter";
-import { useApi } from "../hooks/useApi";
-import SessionService from "../interfaces/SessionService";
-import TYPES from "../services/types";
 import useStartSessionMutation from "../hooks/useStartSessionMutation";
 import useStopSessionMutation from "../hooks/useStopSessionMutation";
 import useCurrentSessionQuery from "../hooks/useCurrentSessionQuery";
 import { runtime } from "webextension-polyfill";
 import { EventTypes } from "../services/events/events";
 
-const settings = {
-    sessionDuration: 25 * 60 * 1000,
-}
 
-const CurrentSession = (props: VoidProps) => {
+const CurrentSession : Component<{sessionDuration: number}> = (props) => {
 
     const currentQuery = useCurrentSessionQuery()
-
-    const [remainingTime, setRemainingTime] = createSignal(settings.sessionDuration)
+    
+    const [remainingTime, setRemainingTime] = createSignal(props.sessionDuration)
 
     const startSessionMutation = useStartSessionMutation()
 
@@ -44,7 +37,7 @@ const CurrentSession = (props: VoidProps) => {
         if (session) {
             let timer: number = 0
             let interval: number = 0
-            const time = settings.sessionDuration - (Date.now() - session.startTime)
+            const time = session.duration - (Date.now() - session.startTime)
             setRemainingTime(time)
 
             timer = setTimeout(() => {
@@ -55,7 +48,7 @@ const CurrentSession = (props: VoidProps) => {
                 setRemainingTime(r => r - 500)
             }, 500)
             onCleanup(() => {
-                setRemainingTime(settings.sessionDuration)
+                setRemainingTime(session.duration)
                 clearTimeout(timer)
                 clearInterval(interval)
             })

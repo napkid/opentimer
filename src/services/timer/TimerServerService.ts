@@ -41,6 +41,7 @@ class TimerServerService implements TimerService {
             clearTimeout(this.timer)
             this.logger.log('Timer stopped')
         }
+        return Promise.resolve()
     }
 }
 
