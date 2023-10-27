@@ -12,6 +12,7 @@ import ClientEventService from "../services/events/EventService"
 import DebugLoggerService from "../services/DebugLoggerService"
 import { LoggerService } from "../interfaces/Logger"
 import { Entrypoints } from "../services/entrypoints"
+import { IntegrationMatcher } from "../integrations/types"
 
 
 const createContainer = () => {
@@ -27,29 +28,31 @@ const createContainer = () => {
 }
 
 const container = createContainer()
-const renderButton = (selector) => {
+const renderButton = () => {
+    const matcher: IntegrationMatcher = window[runtime.id]?.getMatcher()
+    if(!matcher){
+        throw new Error('Failed to get page matcher')
+    }
     const id = runtime.id + '-button'
 
-    const root = document.createElement('li')
+    const root = document.createElement(matcher.button.element)
     root.id = id
+    root.className = matcher.button.className
     
     render(() => <ApiProvider value={container}>
         <ClockButton />
     </ApiProvider>, root)
 
-    const parent : HTMLUnknownElement = document.querySelector(selector)
+    const parent : HTMLUnknownElement = document.querySelector(matcher.button.selector)
     return parent.appendChild(root)
 }
 
 try {
-
-    renderButton("#repository-container-header > div.d-flex.flex-wrap.flex-justify-end.mb-3.px-3.px-md-4.px-lg-5 > div.flex-auto.min-width-0.width-fit.mr-3 > div")
+    renderButton()
 } catch (error) {
     console.error(error);
 
 }
-
-console.log('Rendered button');
 
 
 
