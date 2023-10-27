@@ -13,6 +13,8 @@ import NotificationService from "../services/NotificationService";
 import TimerServerService from "../services/timer/TimerServerService";
 import { LoggerService } from "../interfaces/Logger";
 import DebugLoggerService from "../services/DebugLoggerService";
+import SettingsService from "../interfaces/SettingsService";
+import DatabaseSettingsService from "../services/DatabaseSettingsService";
 
 
 
@@ -30,6 +32,7 @@ const _createContainer = () => {
   container.bind<NotificationService>(TYPES.Notification).to(NotificationService)
   container.bind<BackgroundEventService>(TYPES.BackgroundEvent).to(BackgroundEventService)
   container.bind<LoggerService>(TYPES.Logger).to(DebugLoggerService)
+  container.bind<SettingsService>(TYPES.Settings).to(DatabaseSettingsService)
   return container
 
 }

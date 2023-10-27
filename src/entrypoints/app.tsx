@@ -16,6 +16,8 @@ import TimerClientService from '../services/timer/TimerClientService'
 import { LoggerService } from '../interfaces/Logger'
 import DebugLoggerService from '../services/DebugLoggerService'
 import { Entrypoints } from '../services/entrypoints'
+import DatabaseSettingsService from '../services/DatabaseSettingsService'
+import SettingsService from '../interfaces/SettingsService'
 
 
 const createContainer = () => {
@@ -29,6 +31,9 @@ const createContainer = () => {
         .to(TimerClientService)
 
     container.bind<LoggerService>(TYPES.Logger).to(DebugLoggerService)
+
+    container.bind<SettingsService>(TYPES.Settings)
+        .to(DatabaseSettingsService)
     return container
 }
 const apiSource = createContainer()

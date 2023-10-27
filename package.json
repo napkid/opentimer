@@ -11,6 +11,7 @@
   "dependencies": {
     "@abraham/reflection": "^0.12.0",
     "@iconify/json": "^2.2.131",
+    "@solidjs/router": "^0.8.3",
     "@svgr/core": "^8.1.0",
     "@svgr/plugin-jsx": "^8.1.0",
     "@tanstack/solid-query": "^5.0.5",

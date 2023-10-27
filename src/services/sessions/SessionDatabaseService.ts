@@ -1,20 +1,14 @@
-import type DatabaseService from "../../interfaces/DatabaseService";
-
 import { inject, injectable } from "inversify";
 import SessionService from "../../interfaces/SessionService";
 import TYPES from "../types";
 import Database from "../database";
 import { Session, State, Task } from "../../entities";
-import ClientEventService from "../events/EventService";
+import type SettingsService from "../../interfaces/SettingsService";
+import type { Logger, LoggerService } from "../../interfaces/Logger";
 
 
 const defaultState: State = {
     id: 'main'
-}
-
-
-const settings = {
-    sessionDuration: 25 * 60 * 1000,
 }
 
 @injectable()
@@ -24,10 +18,15 @@ class SessionDatabaseService implements SessionService {
         return await this.db.state.get('main') || defaultState
     }
 
+    private logger: Logger
     constructor(
         @inject(TYPES.Database) private db: Database,
         @inject(TYPES.Timer) private timer: TimerService,
-    ){}
+        @inject(TYPES.Settings) private settings: SettingsService,
+        @inject(TYPES.Logger) loggerService: LoggerService
+    ){
+        this.logger = loggerService.getLogger('SessionDatabaseService')
+    }
 
     async getCurrentSession() {
         return this.db.transaction('r', [
@@ -47,6 +46,8 @@ class SessionDatabaseService implements SessionService {
     }
 
     async setCurrentSession(session: Partial<Session>) {
+        this.logger.log('Set current session')
+        this.logger.debug(session)
         this.db.transaction('rw', [this.db.state], async () => {
             const state = await this.db.state.get('main')
             if (!state) {
@@ -72,23 +73,6 @@ class SessionDatabaseService implements SessionService {
                 .reverse()
                 .sortBy('startTime')
 
-            // const groupedByTask = sessions.reduce(
-            //     (a, s) => {
-            //         const sessions = a.get(s.taskId) || []
-            //         sessions.push(s)
-            //         return a.set(s.taskId, sessions)
-            //     },
-            //     new Map<number, Session[]>()
-            // )
-
-            // const tasks = await this._db.tasks.bulkGet([...groupedByTask.keys()])
-            // for(const task of tasks){
-            //     if(task?.id){
-            //         task.sessions = groupedByTask.get(task.id) || []
-            //     }
-            // }
-
-            // return tasks.filter(t => !!t) as Task[]
             return Promise.all(sessions.map(async s => {
                 if (s.taskId) {
                     s.task = await this.db.tasks.get(s.taskId)
@@ -115,21 +99,18 @@ class SessionDatabaseService implements SessionService {
     }
 
     async startSession(task: Partial<Task>) {
-        const session = await this.db.transaction("rw", ['tasks', 'state', 'sessions'], async () => {
-
-            if (!task.id) {
-                task.id = await this.db.tasks.add(task as Task)
-            }
-            const session: Session = {
-                taskId: task.id,
-                startTime: Date.now(),
-                duration: settings.sessionDuration
-            }
-            session.id = await this.db.sessions.add(session)
-            await this.setCurrentSession(session)
-            return session
-        })
-        await this.timer.startTimer(25*1000)
+        if(!task.id){
+            task.id = await this.db.tasks.add(task as Task)
+        }
+        const settings = await this.settings.getSettings()
+        const session: Session = {
+            taskId: task.id,
+            startTime: Date.now(),
+            duration: settings.sessionDuration
+        }
+        session.id = await this.db.sessions.add(session)
+        await this.setCurrentSession(session)
+        await this.timer.startTimer(session.duration)
         return session
     }
 
@@ -146,6 +127,7 @@ class SessionDatabaseService implements SessionService {
                 }
             )
             await this.setCurrentSession({ id: undefined })
+            await this.timer.stopTimer()
         })
     }
 }

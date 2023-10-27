@@ -1,6 +1,8 @@
-import CurrentSession from "./CurrentSession"
-import TaskListForPeriod from "./TaskList"
+import CurrentSession from "../components/CurrentSession"
+import TaskListForPeriod from "../components/TaskList"
 import { endOfDay, startOfDay } from "date-fns"
+import useSettings from "../hooks/useSettings"
+import { Show } from "solid-js"
 
 
 const Home = () => {
@@ -8,10 +10,15 @@ const Home = () => {
 
 
     const now = new Date()
+    const settingsQuery = useSettings()
 
     return <div>
 
-        <CurrentSession />
+        <Show when={settingsQuery.data}>
+            {settings => <CurrentSession
+                sessionDuration={settings().sessionDuration}
+            />}
+        </Show>
         <div class="grid grid-cols-1 gap-4 mb-4">
             <TaskListForPeriod
                 timeStart={startOfDay(now).getTime()}

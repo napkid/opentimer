@@ -31,6 +31,10 @@ class ClientEventService {
             this.logger.debug(r.data)
             return r.data
         })
+        .catch(err => {
+            this.logger.error(err)
+            throw err
+        })
     }
 }
 
