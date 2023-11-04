@@ -3,6 +3,7 @@ import { Integration, MatcherPreset } from "./types"
 
 const GithubIntegration: Integration = {
     id: "github",
+    standalone: true,
     label: "Github",
     matchers: [{
         idMatcher: MatcherPreset.Url,

@@ -15,7 +15,7 @@ import { LoggerService } from "../interfaces/Logger";
 import DebugLoggerService from "../services/DebugLoggerService";
 import SettingsService from "../interfaces/SettingsService";
 import DatabaseSettingsService from "../services/DatabaseSettingsService";
-import BackgroundIntegrationService from "../services/BackgroundIntegrationService";
+import BackgroundIntegrationService from "../services/integrations/BackgroundIntegrationService";
 import { IntegrationMatcher } from "../integrations/types";
 
 

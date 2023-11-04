@@ -1,3 +1,4 @@
+import { Integration, IntegrationConfiguration, IntegrationConfigurationValue } from "../integrations/types"
 
 
 export type Task = {
@@ -25,3 +26,13 @@ export type Settings = {
     id: string,
     sessionDuration: number
 }
+
+export type IntegrationSetting<T extends object = object> = {
+    id?: number,
+    name?: string,
+    integrationId: string,
+    integration?: Integration<any>,
+    enabled: boolean,
+    configuration?: T
+}
+

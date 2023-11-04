@@ -1,9 +1,11 @@
+import GiteaIntegration from "./gitea"
 import GithubIntegration from "./github"
 
 
 
 const availableIntegrations = [
-    GithubIntegration
+    GithubIntegration,
+    GiteaIntegration
 ]
 
 export default availableIntegrations

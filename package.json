@@ -24,6 +24,7 @@
     "flowbite": "^1.8.1",
     "inversify": "^6.0.2",
     "inversify-logger-middleware": "^3.1.0",
+    "lodash": "^4.17.21",
     "postcss": "^8.4.31",
     "reflect-metadata": "^0.1.13",
     "solid-js": "^1.7.8",

@@ -18,6 +18,7 @@ import DebugLoggerService from '../services/DebugLoggerService'
 import { Entrypoints } from '../services/entrypoints'
 import DatabaseSettingsService from '../services/DatabaseSettingsService'
 import SettingsService from '../interfaces/SettingsService'
+import DatabaseIntegrationService from '../services/integrations/BackgroundIntegrationService'
 
 
 const createContainer = () => {
@@ -34,6 +35,9 @@ const createContainer = () => {
 
     container.bind<SettingsService>(TYPES.Settings)
         .to(DatabaseSettingsService)
+
+    container.bind<DatabaseIntegrationService>(TYPES.Integrations)
+        .to(DatabaseIntegrationService)
     return container
 }
 const apiSource = createContainer()
