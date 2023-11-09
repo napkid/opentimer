@@ -12,7 +12,7 @@ import ClientEventService from "../services/events/EventService"
 import DebugLoggerService from "../services/DebugLoggerService"
 import { LoggerService } from "../interfaces/Logger"
 import { Entrypoints } from "../services/entrypoints"
-import { IntegrationMatcher } from "../integrations/types"
+import { FixedMatcher, IntegrationMatcher } from "../integrations/types"
 
 
 const createContainer = () => {
@@ -29,7 +29,7 @@ const createContainer = () => {
 
 const container = createContainer()
 const renderButton = () => {
-    const matcher: IntegrationMatcher = window[runtime.id]?.getMatcher()
+    const matcher: FixedMatcher = window[runtime.id]?.getMatcher()
     if(!matcher){
         throw new Error('Failed to get page matcher')
     }
@@ -38,9 +38,12 @@ const renderButton = () => {
     const root = document.createElement(matcher.button.element)
     root.id = id
     root.className = matcher.button.className
-    
+
     render(() => <ApiProvider value={container}>
-        <ClockButton />
+        <ClockButton
+            titleMatcher={matcher.titleMatcher}
+            idMatcher={matcher.idMatcher}
+        />
     </ApiProvider>, root)
 
     const parent : HTMLUnknownElement = document.querySelector(matcher.button.selector)

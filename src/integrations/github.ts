@@ -6,6 +6,7 @@ const GithubIntegration: Integration = {
     standalone: true,
     label: "Github",
     matchers: [{
+        hostPattern: 'https://*.github.com/*',
         idMatcher: MatcherPreset.Url,
         titleMatcher: MatcherPreset.WindowTitle,
         urlFilter: {

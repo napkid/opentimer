@@ -17,6 +17,8 @@ import SettingsService from "../interfaces/SettingsService";
 import DatabaseSettingsService from "../services/DatabaseSettingsService";
 import BackgroundIntegrationService from "../services/integrations/BackgroundIntegrationService";
 import { IntegrationMatcher } from "../integrations/types";
+import BackgroundPermissionsService from "../services/BackgroundPermissionsService";
+import PermissionsService from "../interfaces/PermissionsService";
 
 
 
@@ -36,6 +38,7 @@ const _createContainer = () => {
   container.bind<LoggerService>(TYPES.Logger).to(DebugLoggerService)
   container.bind<SettingsService>(TYPES.Settings).to(DatabaseSettingsService)
   container.bind<BackgroundIntegrationService>(TYPES.Integrations).to(BackgroundIntegrationService)
+  container.bind<PermissionsService>(TYPES.Permissions).to(BackgroundPermissionsService)
   return container
 
 }
@@ -70,6 +73,28 @@ action.onClicked.addListener(() => {
 })
 
 
+const injectScript = async (tabId: number, matcher: IntegrationMatcher<any>) => {
+  await scripting.executeScript({
+    target: {
+      tabId: tabId
+    },
+    func: (id: string, matcher: IntegrationMatcher<any>) => {
+      window[id] = {
+        getMatcher: () => {
+          return matcher
+        }
+      }
+    },
+    args: [runtime.id, matcher]
+  })
+  await scripting.executeScript({
+    target: {
+      tabId: tabId
+    },
+    files: ['src/entrypoints/content.js']
+  })
+}
+
 const integrationService = globalContainer.get<BackgroundIntegrationService>(TYPES.Integrations)
 integrationService.getMatchers()
   .then((matchers => {
@@ -77,25 +102,7 @@ integrationService.getMatchers()
       browser.webNavigation.onCompleted.addListener(async (details) => {
   
         try {
-          await scripting.executeScript({
-            target: {
-              tabId: details.tabId
-            },
-            func: (id: string, matcher: IntegrationMatcher) => {
-              window[id] = {
-                getMatcher: () => {
-                  return matcher
-                }
-              }
-            },
-            args: [runtime.id, matcher]
-          })
-          await scripting.executeScript({
-            target: {
-              tabId: details.tabId
-            },
-            files: ['src/entrypoints/content.js']
-          })
+          injectScript(details.tabId, matcher)
         } catch (error) {
           console.error(error);
   

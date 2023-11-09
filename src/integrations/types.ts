@@ -9,7 +9,7 @@ export enum MatcherPreset {
     Url
 }
 
-type SelectorMatcherPrimitive = MatcherPreset | string
+export type SelectorMatcherPrimitive = MatcherPreset | string
 type MatcherFunction<R, C> = (configurationValue: C) => R
 export type Matcher<P,C> = P | MatcherFunction<P,C>
 
@@ -20,11 +20,16 @@ export type ButtonInsertMatcher = {
 }
 
 
+export type FixedMatcher = {
+    hostPattern: string,
+    urlFilter: Events.UrlFilter,
+    idMatcher: SelectorMatcherPrimitive,
+    titleMatcher: SelectorMatcherPrimitive,
+    button: ButtonInsertMatcher
+}
+
 export type IntegrationMatcher<T> = {
-    urlFilter: Matcher<Events.UrlFilter,T>,
-    idMatcher: Matcher<SelectorMatcherPrimitive,T>,
-    titleMatcher: Matcher<SelectorMatcherPrimitive,T>,
-    button: ButtonInsertMatcher 
+    [Property in keyof FixedMatcher]: Matcher<FixedMatcher[Property], T>
 }
 
 export type Integration<T = never> = {

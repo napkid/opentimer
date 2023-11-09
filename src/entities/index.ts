@@ -1,9 +1,10 @@
-import { Integration, IntegrationConfiguration, IntegrationConfigurationValue } from "../integrations/types"
+import { Integration, IntegrationConfiguration } from "../integrations/types"
 
 
 export type Task = {
     id?: number,
     name: string,
+    key?: string,
     description: string,
     sessions: Session[]
 }

@@ -4,19 +4,15 @@ import TYPES from "../types";
 import Database from "../database";
 
 import { IntegrationSetting } from '../../entities'
-import { Integration } from "../../integrations/types";
-
-
-const defaultSettings: Partial<IntegrationSetting> = {
-    integrationId: "",
-    enabled: false
-}
+import { FixedMatcher, Integration, IntegrationMatcher } from "../../integrations/types";
+import type PermissionsService from "../../interfaces/PermissionsService";
 
 @injectable()
 class DatabaseIntegrationService {
 
     constructor(
-        @inject(TYPES.Database) private db: Database
+        @inject(TYPES.Database) private db: Database,
+        @inject(TYPES.Permissions) private permissions: PermissionsService
     ) { }
 
     async getSettings() {
@@ -61,8 +57,22 @@ class DatabaseIntegrationService {
         return settings
     }
 
+    private async enableOne(id: number){
+        const settings = await this.getOne(id)
+        return this.permissions.requestHosts(
+            settings.integration.matchers
+                .map(matcher => typeof matcher.hostPattern === 'function'
+                    ? matcher.hostPattern(settings.configuration)
+                    : matcher.hostPattern
+                )
+        )
+    }
+
     async updateOne(settings: IntegrationSetting){
         await this.db.integrationSettings.update(settings.id, settings)
+        if(settings.enabled){
+            this.enableOne(settings.id)
+        }
         return settings
     }
 
@@ -70,10 +80,35 @@ class DatabaseIntegrationService {
         await this.db.integrationSettings.delete(id)
     }
 
-    getMatchers() {
-        return Promise.resolve(
-            availableIntegrations.flatMap(i => i.matchers)
-        )
+    async getEnabled(){
+        const settings = (await this.db.integrationSettings
+            // That doesn't work because indexeddb cannot index booleans... shame. https://github.com/dexie/Dexie.js/issues/70
+            // .where({
+            //     enabled: true
+            // })
+            .toArray())
+            .filter((is) => is.enabled)
+
+        for(const s of settings){
+            s.integration = availableIntegrations.find(i => i.id === s.integrationId)
+        }
+        return settings
+    }
+
+    async getMatchers() {
+        
+        const settings = await this.getEnabled()
+        return settings.flatMap(s => s.integration.matchers.map(matcher => {
+            const m = {}
+            for(const key in matcher){
+                if(typeof matcher[key] === 'function'){
+                    m[key] = matcher[key](s.configuration)
+                } else {
+                    m[key] = matcher[key]
+                }
+            }
+            return m as FixedMatcher
+        }))
     }
 }
 
