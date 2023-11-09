@@ -15,6 +15,10 @@ import { LoggerService } from "../interfaces/Logger";
 import DebugLoggerService from "../services/DebugLoggerService";
 import SettingsService from "../interfaces/SettingsService";
 import DatabaseSettingsService from "../services/DatabaseSettingsService";
+import BackgroundIntegrationService from "../services/integrations/BackgroundIntegrationService";
+import { IntegrationMatcher } from "../integrations/types";
+import BackgroundPermissionsService from "../services/BackgroundPermissionsService";
+import PermissionsService from "../interfaces/PermissionsService";
 
 
 
@@ -33,6 +37,8 @@ const _createContainer = () => {
   container.bind<BackgroundEventService>(TYPES.BackgroundEvent).to(BackgroundEventService)
   container.bind<LoggerService>(TYPES.Logger).to(DebugLoggerService)
   container.bind<SettingsService>(TYPES.Settings).to(DatabaseSettingsService)
+  container.bind<BackgroundIntegrationService>(TYPES.Integrations).to(BackgroundIntegrationService)
+  container.bind<PermissionsService>(TYPES.Permissions).to(BackgroundPermissionsService)
   return container
 
 }
@@ -67,23 +73,43 @@ action.onClicked.addListener(() => {
 })
 
 
-browser.webNavigation.onCompleted.addListener(async (details) => {
+const injectScript = async (tabId: number, matcher: IntegrationMatcher<any>) => {
+  await scripting.executeScript({
+    target: {
+      tabId: tabId
+    },
+    func: (id: string, matcher: IntegrationMatcher<any>) => {
+      window[id] = {
+        getMatcher: () => {
+          return matcher
+        }
+      }
+    },
+    args: [runtime.id, matcher]
+  })
+  await scripting.executeScript({
+    target: {
+      tabId: tabId
+    },
+    files: ['src/entrypoints/content.js']
+  })
+}
 
-  try {
-
-    await scripting.executeScript({
-      target: {
-        tabId: details.tabId
-      },
-      files: ['src/entrypoints/content.js']
-    })
-  } catch (error) {
-    console.error(error);
-
-  }
-
-}, {
-  url: [{
-    hostContains: 'github.com'
-  }]
-})
+const integrationService = globalContainer.get<BackgroundIntegrationService>(TYPES.Integrations)
+integrationService.getMatchers()
+  .then((matchers => {
+    for(const matcher of matchers){
+      browser.webNavigation.onCompleted.addListener(async (details) => {
+  
+        try {
+          injectScript(details.tabId, matcher)
+        } catch (error) {
+          console.error(error);
+  
+        }
+  
+      }, {
+        url: [matcher.urlFilter]
+      })
+    }
+  }))

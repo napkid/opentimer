@@ -10,7 +10,9 @@ const TYPES = {
     Notification: Symbol.for('Notification'),
     Timer: Symbol.for('Timer'),
     Logger: Symbol.for('Logger'),
-    Settings: Symbol.for('Settings')
+    Settings: Symbol.for('Settings'),
+    Integrations: Symbol.for('Integrations'),
+    Permissions: Symbol.for('Permissions')
 }
 
 export default TYPES
